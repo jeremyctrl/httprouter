@@ -2,7 +2,7 @@ package httprouter
 
 import "net/http"
 
-type Handler func(w http.ResponseWriter, req *http.Request, params ...string)
+type Handler func(w http.ResponseWriter, req *http.Request, params Params)
 
 type Router struct {
 	routes []routeDef
@@ -64,5 +64,5 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		http.NotFound(w, req)
 		return
 	}
-	route.handler(w, req, params...)
+	route.handler(w, req, params)
 }

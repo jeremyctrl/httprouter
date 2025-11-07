@@ -17,6 +17,7 @@ type routeCompiled struct {
 	method       string
 	key          string
 	paramIndices []int
+	paramNames   []string
 	handler      Handler
 }
 
@@ -32,11 +33,13 @@ func build(routes []routeDef) mphGroups {
 
 	for _, def := range routes {
 		var paramIndices []int
+		var paramNames []string
 
 		segments := strings.Split(def.path, "/")
 		for i, segment := range segments {
 			if strings.HasPrefix(segment, ":") {
 				paramIndices = append(paramIndices, i)
+				paramNames = append(paramNames, strings.TrimPrefix(segment, ":"))
 				segments[i] = ":"
 			}
 		}
@@ -48,6 +51,7 @@ func build(routes []routeDef) mphGroups {
 			method:       def.method,
 			key:          normalized,
 			paramIndices: paramIndices,
+			paramNames:   paramNames,
 			handler:      def.handler,
 		})
 	}
@@ -70,7 +74,7 @@ func build(routes []routeDef) mphGroups {
 	return groups
 }
 
-func find(groups mphGroups, method, path string) (*routeCompiled, []string) {
+func find(groups mphGroups, method, path string) (*routeCompiled, Params) {
 	segments := strings.Split(path, "/")
 	depth := len(segments)
 
@@ -101,11 +105,14 @@ func find(groups mphGroups, method, path string) (*routeCompiled, []string) {
 	}
 
 	route := group.routes[int(idx)]
-	params := make([]string, 0, len(route.paramIndices))
+	params := make(Params, 0, len(route.paramIndices))
 
-	for _, pos := range route.paramIndices {
+	for i, pos := range route.paramIndices {
 		if pos < len(segments) {
-			params = append(params, segments[pos])
+			params = append(params, Param{
+				Name:  route.paramNames[i],
+				Value: segments[pos],
+			})
 		}
 	}
 
