@@ -32,7 +32,7 @@ func build(routes []routeDef) mphResult {
 	for _, def := range routes {
 		var paramIndices []int
 
-		segments := strings.Split(def.path, "")
+		segments := strings.Split(def.path, "/")
 		for i, segment := range segments {
 			if strings.HasPrefix(segment, ":") {
 				paramIndices = append(paramIndices, i)
