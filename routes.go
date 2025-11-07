@@ -70,5 +70,41 @@ func build(routes []routeDef) mphGroups {
 }
 
 func find(groups mphGroups, method, path string) (*routeCompiled, []string) {
+	segments := strings.Split(path, "/")
+	depth := len(segments)
 
+	group, ok := groups[depth]
+	if !ok {
+		return nil, nil
+	}
+
+	normalizedSegments := make([]string, len(segments))
+	for _, segment := range normalizedSegments {
+		if segment == "" {
+			continue
+		}
+		if strings.HasPrefix(segment, ":") {
+			normalizedSegments = append(normalizedSegments, ":")
+		} else {
+			normalizedSegments = append(normalizedSegments, segment)
+		}
+	}
+
+	key := method + ":" + strings.Join(segments, "/")
+
+	idx, ok := group.table.Lookup(key)
+	if !ok {
+		return nil, nil
+	}
+
+	route := group.routes[int(idx)]
+	params := make([]string, 0, len(route.paramIndices))
+
+	for _, pos := range route.paramIndices {
+		if pos < len(segments) {
+			params = append(params, segments[pos])
+		}
+	}
+
+	return &route, params
 }
