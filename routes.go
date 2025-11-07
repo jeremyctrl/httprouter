@@ -1,6 +1,7 @@
 package httprouter
 
 import (
+	"slices"
 	"strings"
 
 	"github.com/cespare/mph"
@@ -78,19 +79,21 @@ func find(groups mphGroups, method, path string) (*routeCompiled, []string) {
 		return nil, nil
 	}
 
+	paramMask := group.routes[0].paramIndices
 	normalizedSegments := make([]string, len(segments))
-	for _, segment := range normalizedSegments {
+
+	for i, segment := range segments {
 		if segment == "" {
 			continue
 		}
-		if strings.HasPrefix(segment, ":") {
-			normalizedSegments = append(normalizedSegments, ":")
+		if slices.Contains(paramMask, i) {
+			normalizedSegments[i] = ":"
 		} else {
-			normalizedSegments = append(normalizedSegments, segment)
+			normalizedSegments[i] = segment
 		}
 	}
 
-	key := method + ":" + strings.Join(segments, "/")
+	key := method + ":" + strings.Join(normalizedSegments, "/")
 
 	idx, ok := group.table.Lookup(key)
 	if !ok {
