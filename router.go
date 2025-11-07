@@ -54,6 +54,7 @@ func (r *Router) Handle(method, path string, handler Handler) *Router {
 }
 
 func (r *Router) Build() *Router {
+	r.groups = build(r.routes)
 	return r
 }
 
