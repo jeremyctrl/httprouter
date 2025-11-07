@@ -5,10 +5,15 @@ import "net/http"
 type Handler func(w http.ResponseWriter, req *http.Request, params ...string)
 
 type Router struct {
+	routes []routeDef
+	groups mphGroups
 }
 
 func New() *Router {
-	return &Router{}
+	return &Router{
+		routes: make([]routeDef, 0),
+		groups: nil,
+	}
 }
 
 func (r *Router) GET(path string, handler Handler) *Router {
@@ -40,6 +45,15 @@ func (r *Router) PATCH(path string, handler Handler) *Router {
 }
 
 func (r *Router) Handle(method, path string, handler Handler) *Router {
+	r.routes = append(r.routes, routeDef{
+		method,
+		path,
+		handler,
+	})
+	return r
+}
+
+func (r *Router) Build() *Router {
 	return r
 }
 
