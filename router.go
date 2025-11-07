@@ -59,5 +59,10 @@ func (r *Router) Build() *Router {
 }
 
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-
+	route, params := find(r.groups, req.Method, req.URL.Path)
+	if route == nil {
+		http.NotFound(w, req)
+		return
+	}
+	route.handler(w, req, params...)
 }
