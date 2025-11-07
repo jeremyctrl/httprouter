@@ -24,9 +24,9 @@ type mphGroup struct {
 	routes []routeCompiled
 }
 
-type mphResult map[int]mphGroup
+type mphGroups map[int]mphGroup
 
-func build(routes []routeDef) mphResult {
+func build(routes []routeDef) mphGroups {
 	grouped := make(map[int][]routeCompiled)
 
 	for _, def := range routes {
@@ -51,7 +51,7 @@ func build(routes []routeDef) mphResult {
 		})
 	}
 
-	groups := make(map[int]mphGroup)
+	groups := make(mphGroups)
 
 	for depth, routes := range grouped {
 		keys := make([]string, len(routes))
@@ -69,6 +69,6 @@ func build(routes []routeDef) mphResult {
 	return groups
 }
 
-func find(groups mphResult, method, path string) (*routeCompiled, []string) {
+func find(groups mphGroups, method, path string) (*routeCompiled, []string) {
 
 }
