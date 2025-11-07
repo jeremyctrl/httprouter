@@ -5,8 +5,9 @@ import "net/http"
 type Handler func(w http.ResponseWriter, req *http.Request, params Params)
 
 type Router struct {
-	routes []routeDef
-	groups mphGroups
+	routes   []routeDef
+	groups   mphGroups
+	NotFound http.HandlerFunc
 }
 
 func New() *Router {
@@ -61,7 +62,11 @@ func (r *Router) Build() *Router {
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	route, params := find(r.groups, req.Method, req.URL.Path)
 	if route == nil {
-		http.NotFound(w, req)
+		if r.NotFound != nil {
+			r.NotFound(w, req)
+		} else {
+			http.NotFound(w, req)
+		}
 		return
 	}
 	route.handler(w, req, params)
